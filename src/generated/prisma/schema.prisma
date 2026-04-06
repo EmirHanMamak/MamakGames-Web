@@ -1,0 +1,196 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// ─── Auth ────────────────────────────────────────────
+model AdminUser {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String   @default("Admin")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─── Site Settings ───────────────────────────────────
+model SiteSettings {
+  id                String   @id @default("main")
+  logoText          String   @default("Mamak Games")
+  loadingText       String   @default("MAMAK GAMES")
+  showLoadingScreen Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+// ─── SEO ─────────────────────────────────────────────
+model SeoSettings {
+  id              String   @id @default("main")
+  metaTitle       String   @default("Mamak Games — Creating Engaging Games for Everyone")
+  metaDescription String   @default("Mamak Games is an independent game studio focused on developing fun, polished, and accessible games for mobile and web platforms.")
+  ogImage         String   @default("")
+  keywords        String   @default("game development, indie games, mobile games, web games, Mamak Games")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// ─── Navigation ──────────────────────────────────────
+model NavigationItem {
+  id        String   @id @default(cuid())
+  label     String
+  href      String
+  sortOrder Int      @default(0)
+  visible   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─── Hero Section ────────────────────────────────────
+model HeroSection {
+  id               String   @id @default("main")
+  tagLine          String   @default("Independent Game Studio · Est. 2026")
+  title            String   @default("Creating Engaging Games for Everyone")
+  highlightWord    String   @default("Engaging")
+  subtitle         String   @default("We craft polished, accessible, and fun games for mobile and web — with a focus on gameplay, performance, and clean design.")
+  ctaPrimaryText   String   @default("Explore Games")
+  ctaPrimaryLink   String   @default("#games")
+  ctaSecondaryText String   @default("Get in Touch")
+  ctaSecondaryLink String   @default("#contact")
+  visible          Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+// ─── About Section ───────────────────────────────────
+model AboutSection {
+  id             String   @id @default("main")
+  tagLine        String   @default("About the Studio")
+  title          String   @default("One Developer,")
+  titleHighlight String   @default("Infinite Possibilities")
+  paragraph1     String   @default("Mamak Games is an independent game studio founded in 2026 by Emir Han Mamak. As a solo developer studio, every game is a deeply personal creation — each mechanic carefully tuned, each pixel thoughtfully placed.")
+  paragraph2     String   @default("Based in Kocaeli, Turkey, the studio focuses on crafting high-quality mobile and web-based games with a strong emphasis on gameplay, performance, and clean design. We value efficiency, creativity, and delivering enjoyable player experiences through well-crafted games.")
+  founderName    String   @default("Emir Han Mamak")
+  founderTitle   String   @default("Founder & Developer")
+  founderImage   String   @default("")
+  stat1Label     String   @default("Founded")
+  stat1Value     String   @default("2026")
+  stat2Label     String   @default("Location")
+  stat2Value     String   @default("Kocaeli, TR")
+  stat3Label     String   @default("Focus")
+  stat3Value     String   @default("Mobile & Web")
+  stat4Label     String   @default("Founder")
+  stat4Value     String   @default("Solo Dev")
+  visible        Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+// ─── Services ────────────────────────────────────────
+model ServiceItem {
+  id          String   @id @default(cuid())
+  icon        String   @default("Gamepad2")
+  title       String
+  description String
+  sortOrder   Int      @default(0)
+  visible     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ─── Games ───────────────────────────────────────────
+model Game {
+  id               String      @id @default(cuid())
+  title            String
+  slug             String      @unique
+  shortDescription String
+  fullDescription  String      @default("")
+  coverImage       String      @default("")
+  genre            String      @default("")
+  appStoreUrl      String      @default("")
+  googlePlayUrl    String      @default("")
+  webUrl           String      @default("")
+  steamUrl         String      @default("")
+  featured         Boolean     @default(false)
+  published        Boolean     @default(true)
+  releaseDate      String      @default("")
+  sortOrder        Int         @default(0)
+  images           GameImage[]
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+}
+
+model GameImage {
+  id        String   @id @default(cuid())
+  url       String
+  alt       String   @default("")
+  sortOrder Int      @default(0)
+  gameId    String
+  game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+// ─── Contact ─────────────────────────────────────────
+model ContactInfo {
+  id          String   @id @default("main")
+  email       String   @default("mamakgames@gmail.com")
+  linkedin    String   @default("EmirHanMamak")
+  linkedinUrl String   @default("https://linkedin.com/in/emirhanmamak")
+  website     String   @default("mamakgames.com")
+  websiteUrl  String   @default("https://mamakgames.com")
+  location    String   @default("Kocaeli, Turkey")
+  formEnabled Boolean  @default(true)
+  visible     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ContactSubmission {
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  projectType String   @default("")
+  message     String
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+// ─── Social Links ────────────────────────────────────
+model SocialLink {
+  id        String   @id @default(cuid())
+  platform  String
+  url       String
+  icon      String   @default("Globe")
+  sortOrder Int      @default(0)
+  visible   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─── Footer ──────────────────────────────────────────
+model FooterSettings {
+  id            String   @id @default("main")
+  description   String   @default("Independent game studio focused on developing fun, polished, and accessible games for mobile and web platforms. Based in Kocaeli, Turkey.")
+  copyrightText String   @default("© 2026 Mamak Games. All rights reserved.")
+  bottomText    String   @default("Crafted with passion in Kocaeli, Turkey")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// ─── Legal ───────────────────────────────────────────
+model PrivacyPolicy {
+  id        String   @id @default("main")
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TermsOfService {
+  id        String   @id @default("main")
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
