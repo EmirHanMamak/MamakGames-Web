@@ -124,10 +124,29 @@ export async function createGame(data: {
 }
 
 export async function updateGame(id: string, data: Record<string, any>) {
-  const result = await prisma.game.update({ where: { id }, data })
+  // Separate images from data if present to avoid nested update issues
+  const { images, ...gameData } = data
+  const result = await prisma.game.update({ where: { id }, data: gameData })
   revalidatePath('/')
   revalidatePath('/admin/games')
   return result
+}
+
+export async function addGameImage(gameId: string, url: string) {
+  const result = await prisma.gameImage.create({
+    data: { gameId, url }
+  })
+  revalidatePath('/')
+  revalidatePath(`/admin/games/${gameId}`)
+  return result
+}
+
+export async function deleteGameImage(id: string) {
+  const image = await prisma.gameImage.findUnique({ where: { id } })
+  if (!image) return
+  await prisma.gameImage.delete({ where: { id } })
+  revalidatePath('/')
+  revalidatePath(`/admin/games/${image.gameId}`)
 }
 
 export async function deleteGame(id: string) {

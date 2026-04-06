@@ -113,23 +113,54 @@ async function main() {
   // Legal
   const privacyContent = `
 <h2>1. Introduction</h2>
-<p>Mamak Games ("we", "our", or "us") respects your privacy. This Privacy Policy describes how we collect, use, and share information about you when you use our mobile applications, web games, and website (the "Services").</p>
-<h2>2. Information We Collect</h2>
-<p>We may collect information securely when you interact with our Services, such as game progress, device type, and anonymous usage statistics to improve performance and gameplay.</p>
-<h2>3. How We Use Information</h2>
-<p>We use the information we collect to operate, maintain, and improve our games and services, and to communicate with you about updates and new releases.</p>
-<h2>4. Contact Us</h2>
-<p>If you have any questions about this Privacy Policy, please contact us at mamakgames@gmail.com.</p>
+<p>Mamak Games ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and disclose information about you when you use our mobile applications, games, and website (collectively, the "Services").</p>
+
+<h2>2. Information Collection</h2>
+<p><b>Non-Personal Information:</b> When you play our games, we may collect technical data such as device model, OS version, language, and anonymized gameplay statistics (e.g., level completion, session length) to improve our games' performance and balance.</p>
+<p><b>Personal Information:</b> We do not collect names, addresses, or phone numbers unless you explicitly provide them (e.g., via a contact form). For our games that use third-party services like Google Play Games or Apple Game Center, we may receive a persistent identifier from those services to track high scores or achievements.</p>
+
+<h2>3. Third-Party Services</h2>
+<p>Our games may include features from third-party partners, such as:</p>
+<ul>
+  <li><b>Advertising:</b> We may use Google AdMob or Unity Ads to show advertisements. These partners may use device identifiers to serves personalized ads.</li>
+  <li><b>Analytics:</b> We may use Unity Analytics or Firebase to understand how our players interact with our games.</li>
+</ul>
+<p>These third parties are governed by their own privacy policies.</p>
+
+<h2>4. Children's Privacy</h2>
+<p>Our games are intended for general audiences. We do not knowingly collect personal information from children under 13. If we discover we have inadvertently collected such information, we will delete it promptly.</p>
+
+<h2>5. Changes to This Policy</h2>
+<p>We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new policy on our website.</p>
+
+<h2>6. Contact Us</h2>
+<p>If you have any questions about this policy, please contact us at <b>mamakgames@gmail.com</b>.</p>
 `
   const termsContent = `
 <h2>1. Acceptance of Terms</h2>
-<p>By accessing or using the games and websites operated by Mamak Games, you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our services.</p>
-<h2>2. Use of Services</h2>
-<p>Our games are provided for your personal, non-commercial entertainment. You agree not to modify, reverse engineer, or exploit our games for unauthorized purposes.</p>
-<h2>3. User Content</h2>
-<p>If our games allow you to create or submit content, you retain ownership of that content but grant us a license to use it in connection with our services.</p>
-<h2>4. Disclaimer of Warranties</h2>
-<p>The Services are provided "as is" without warranty of any kind. Mamak Games disclaims all warranties, whether express, implied, or statutory.</p>
+<p>By downloading, installing, or using Mamak Games’ applications or website, you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our services.</p>
+
+<h2>2. License</h2>
+<p>Mamak Games grants you a limited, non-exclusive, non-transferable, revocable license to use our games for your personal, non-commercial entertainment. You may not copy, modify, distribute, or reverse engineer any part of our games.</p>
+
+<h2>3. User Conduct</h2>
+<p>You agree not to use our services to:
+<ul>
+  <li>Violate any laws or regulations.</li>
+  <li>Hurt, harass, or threaten others.</li>
+  <li>Attempt to cheat, hack, or exploit game mechanics for unauthorized gain.</li>
+  <li>Engage in any activity that disrupts the gameplay experience for others.</li>
+</ul>
+</p>
+
+<h2>4. Intellectual Property</h2>
+<p>All content, including graphics, code, music, and characters, is the property of Mamak Games and protected by copyright and intellectual property laws. All rights not expressly granted are reserved.</p>
+
+<h2>5. Limitation of Liability</h2>
+<p>Mamak Games provides its services "as is" and "as available". We are not liable for any direct, indirect, incidental, or consequential damages resulting from your use of (or inability to use) our services.</p>
+
+<h2>6. Termination</h2>
+<p>We reserve the right to terminate or suspend your access to our services at any time, without notice, for conduct that we believe violates these Terms or is harmful to other users or our business interests.</p>
 `
   
   await prisma.privacyPolicy.upsert({

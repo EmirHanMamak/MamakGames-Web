@@ -51,11 +51,11 @@ export default function Contact({ contactInfo }: ContactProps) {
         <ScrollReveal>
           <div className="text-center mb-16">
             <span className="text-xs font-semibold text-brand-primary uppercase tracking-widest block mb-3">Get in Touch</span>
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
-              Say <span className="text-brand-secondary italic">Hello</span>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-2 uppercase tracking-tighter">
+              Let's <span className="text-brand-secondary italic">Connect</span>
             </h2>
-            <p className="text-text-secondary max-w-lg mx-auto mt-3">
-              Have a question about our games, want to report a bug, or just want to chat? Send us a message!
+            <p className="text-text-secondary max-w-lg mx-auto mt-3 font-medium">
+              Have a question about our games, found a bug, or just want to say hi? We'd love to hear from you.
             </p>
           </div>
         </ScrollReveal>
@@ -98,19 +98,19 @@ export default function Contact({ contactInfo }: ContactProps) {
                 </div>
 
                 <div>
-                  <label className="text-xs font-medium text-white/30 uppercase tracking-wider mb-1.5 block">Project Type</label>
+                  <label className="text-xs font-medium text-white/30 uppercase tracking-wider mb-1.5 block">Subject</label>
                   <select value={form.projectType} onChange={e => setForm(p => ({ ...p, projectType: e.target.value }))} className="w-full px-4 py-3 rounded-xl bg-surface border border-border focus:border-brand-primary/40 text-white text-sm outline-none transition-colors appearance-none">
-                    <option value="">Select a type...</option>
-                    <option value="Game Development">Game Development</option>
-                    <option value="Collaboration">Collaboration</option>
-                    <option value="Publishing">Publishing</option>
-                    <option value="Other">Other</option>
+                    <option value="">Select a reason...</option>
+                    <option value="Question">General Question</option>
+                    <option value="Bug Report">Bug Report</option>
+                    <option value="Feedback">Feedback</option>
+                    <option value="Hello">Just Saying Hi!</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="text-xs font-medium text-white/30 uppercase tracking-wider mb-1.5 block">Message</label>
-                  <textarea value={form.message} onChange={e => setForm(p => ({ ...p, message: e.target.value }))} required rows={5} placeholder="Tell us about your project or idea..." className="w-full px-4 py-3 rounded-xl bg-surface border border-border focus:border-brand-primary/40 text-white text-sm placeholder:text-white/20 outline-none transition-colors resize-none" />
+                  <textarea value={form.message} onChange={e => setForm(p => ({ ...p, message: e.target.value }))} required rows={5} placeholder="Write your message here..." className="w-full px-4 py-3 rounded-xl bg-surface border border-border focus:border-brand-primary/40 text-white text-sm placeholder:text-white/20 outline-none transition-colors resize-none" />
                 </div>
 
                 <button type="submit" disabled={status === 'loading'} className="w-full py-3.5 rounded-xl bg-brand-primary hover:bg-brand-secondary text-white font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50">
