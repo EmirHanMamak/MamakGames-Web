@@ -4,10 +4,14 @@ import Header from '@/components/Header'
 export default async function PrivacyPolicyPage() {
   const { prisma } = await import('@/lib/prisma')
   
-  // Guard against undefined model access if generation is still syncing
-  const policy = (prisma as any).privacyPolicy 
-    ? await (prisma as any).privacyPolicy.findUnique({ where: { id: 'main' } }) 
-    : null
+  let policy = null
+  try {
+    if ((prisma as any).privacyPolicy) {
+      policy = await (prisma as any).privacyPolicy.findUnique({ where: { id: 'main' } })
+    }
+  } catch (err) {
+    console.warn('DB not ready for privacy policy fetch')
+  }
   
   const settings = await getSiteSettings()
   const nav = await getNavigationItems()

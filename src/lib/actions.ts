@@ -5,7 +5,12 @@ import { revalidatePath } from 'next/cache'
 
 // ─── Site Settings ───────────────────────────────────
 export async function getSiteSettings() {
-  return prisma.siteSettings.findUnique({ where: { id: 'main' } })
+  try {
+    return await prisma.siteSettings.findUnique({ where: { id: 'main' } })
+  } catch (err) {
+    console.warn("DB not ready for getSiteSettings")
+    return null
+  }
 }
 
 export async function updateSiteSettings(data: { logoText?: string; loadingText?: string; showLoadingScreen?: boolean }) {
@@ -27,7 +32,12 @@ export async function updateSeoSettings(data: { metaTitle?: string; metaDescript
 
 // ─── Navigation ──────────────────────────────────────
 export async function getNavigationItems() {
-  return prisma.navigationItem.findMany({ orderBy: { sortOrder: 'asc' } })
+  try {
+    return await prisma.navigationItem.findMany({ orderBy: { sortOrder: 'asc' } })
+  } catch (err) {
+    console.warn("DB not ready for getNavigationItems")
+    return []
+  }
 }
 
 export async function createNavigationItem(data: { label: string; href: string; sortOrder?: number }) {

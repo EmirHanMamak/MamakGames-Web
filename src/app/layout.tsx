@@ -10,8 +10,14 @@ const poppins = Poppins({
 })
 
 export async function generateMetadata() {
-  // Defensive check for model existence in newly generated client
-  const seo = (prisma as any).seoSettings ? await (prisma as any).seoSettings.findUnique({ where: { id: 'main' } }) : null
+  let seo = null
+  try {
+    if ((prisma as any).seoSettings) {
+      seo = await (prisma as any).seoSettings.findUnique({ where: { id: 'main' } })
+    }
+  } catch (err) {
+    console.warn('Skipping metadata fetch during build: DB not initialized yet.')
+  }
   
   return {
     title: seo?.metaTitle || 'Mamak Games — Creating Engaging Games for Everyone',

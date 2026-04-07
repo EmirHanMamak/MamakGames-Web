@@ -4,9 +4,14 @@ import Header from '@/components/Header'
 export default async function TermsOfServicePage() {
   const { prisma } = await import('@/lib/prisma')
   
-  const terms = (prisma as any).termsOfService 
-    ? await (prisma as any).termsOfService.findUnique({ where: { id: 'main' } }) 
-    : null
+  let terms = null
+  try {
+    if ((prisma as any).termsOfService) {
+      terms = await (prisma as any).termsOfService.findUnique({ where: { id: 'main' } })
+    }
+  } catch (err) {
+    console.warn('DB not ready for terms of service fetch')
+  }
     
   const settings = await getSiteSettings()
   const nav = await getNavigationItems()
