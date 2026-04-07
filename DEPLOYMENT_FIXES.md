@@ -1,26 +1,26 @@
 # Deployment Fixes
 
-## 1. What Broke?
-During the deployment phase on Coolify, the `npm run build` process failed with the following traceback:
-`Error occurred prerendering page "/_not-found"`
-`PrismaClientKnownRequestError: The table main.SeoSettings does not exist in the current database.`
+## 1. Build Phase Crash (Fixed)
+**What Broke:** Next.js build failed during static prerendering of pages like `/_not-found` and legal pages.
+**Root Cause:** These pages (or the root layout) were making direct Prisma queries during `next build`. In the Coolify build environment, the SQLite database was either missing or the schema wasn't pushed yet, causing Prisma to throw "Table does not exist" errors that crashed the build.
+**The Fix:** 
+- Wrapped metadata and global data fetching actions in `try/catch` blocks.
+- Added graceful fallbacks so the app can build even if the database is not yet initialized.
 
-## 2. Why Did It Break?
-Next.js tries to statically evaluate and generate pages (like `/_not-found`, `privacy-policy`, and `terms-of-service`) during the build process to maximize rendering speed. `/_not-found` implicitly utilizes the `root layout` (`layout.tsx`).
-The `layout.tsx` file executes `generateMetadata()`, which was making a bare `prisma.seoSettings.findUnique()` call. 
-However, in separated deployment environments like Docker/Nixpacks architectures that Coolify relies on, the SQLite database exists on a detached persistent volume that may either be empty during build stages or missing completely before the container ultimately starts. Querying a non-existent database schema statically aborted the entire Next.js optimization compiler.
+## 2. Runtime Startup Loop (Fixed)
+**What Broke:** The container would restart indefinitely in Coolify.
+**Root Cause:** The `start` script `npx prisma db push && next start` was failing. Prisma 7's new `prisma.config.ts` explicitly required `datasource.url`, but the environment variable `DATABASE_URL` wasn't always successfully resolved by the CLI during startup, or the fallback was missing. Additionally, `schema.prisma` was missing the `url = env("DATABASE_URL")` definition.
+**The Fix:**
+- **Prisma Configuration:** Updated `prisma.config.ts` to include a hardcoded fallback to `file:./prisma/dev.db` if `DATABASE_URL` is missing.
+- **Prisma Schema:** Added `url = env("DATABASE_URL")` to `prisma/schema.prisma` to ensure standard Prisma CLI behavior.
+- **Prisma Client:** Updated `src/lib/prisma.ts` to use `DATABASE_URL` if present, ensuring consistency between the CLI and the running application.
+- **Startup Script:** Modified `package.json`'s `start` script to use `npx prisma db push --accept-data-loss`. This ensures the schema is always synced with the database on every boot without blocking for confirmation, which is essential for a "push-to-deploy" workflow with SQLite.
 
-## 3. What Was Changed?
-- **Defensive Error Handling on layout**: Wrapped the `generateMetadata()` function internally with a `try...catch`. If Prisma evaluates the database query during build-time (empty state), it now skips the fetch and seamlessly resorts to default hard-coded SEO titles/descriptions instead of halting.
-- **Made Legal Pages Safe**: Wrapped server-side database evaluations (`getSiteSettings` and `getNavigationItems`) internally in `src/lib/actions.ts` utilizing a `try...catch` envelope. The static rendering process of `privacy-policy/page.tsx` and `terms-of-service/page.tsx` can now default statically to `null`/empty content natively without crashing.
-- **Refined Lifecycle Command Workflow**: Adjusted the `start` script in `package.json` to `"npx prisma db push && next start"`.
+## 3. Deployment Flow Summary
+- **Build Command:** `npm run build`
+- **Start Command:** `npm start` (Runs schema sync followed by app launch)
+- **Database:** SQLite is used. Ensure the path `/app/prisma` is mapped as a **Persistent Volume** in Coolify to prevent data loss on redeploys.
+- **Environment Variables:** Ensure `DATABASE_URL`, `NEXTAUTH_SECRET`, and `NEXTAUTH_URL` are set in the Coolify environment settings.
 
-## 4. How the Deployment Flow Now Works?
-1. **Prepare Phase:** Next.js successfully compiles without demanding functional connection to the database layer by reverting gracefully using static safe evaluation blocks.
-2. **Launch Phase:** Coolify fully resolves the persistent SQLite `dev.db` file container directory mapping.
-3. **Execution Phase:** The modified `"start"` script seamlessly runs `npx prisma db push` before running the Next.js process natively. This ensures that migrations are natively synchronized exactly onto the generated SQLite runtime database ensuring availability for incoming end-user traffic.
-
-## 5. Deployment / Environment Guidelines for Coolify
-- **Build Command**: `npm run build` (Works safely out of the box now)
-- **Start Command**: `npm start` (This will invoke `npx prisma db push && next start` securely parsing the db model).
-- **Persistent Storage**: Ensure you have successfully allocated `/app/prisma` mapped internally as a persistent volume inside Nixpacks configuration settings (or Coolify panel settings). This ensures your `dev.db` database changes won't reset on deployment restarts.
+## 4. Prisma 7 Configuration
+We are using the new `prisma.config.ts` introduced in Prisma 7. This file handles the CLI configuration, while `src/lib/prisma.ts` handles the runtime client instantiation with the `better-sqlite3` adapter for optimal performance.
