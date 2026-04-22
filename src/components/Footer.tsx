@@ -1,5 +1,6 @@
 'use client'
 
+import type { ComponentType } from 'react'
 import Link from 'next/link'
 import { Mail, Globe } from 'lucide-react'
 import { LinkedinIcon } from './icons/LinkedinIcon'
@@ -10,7 +11,11 @@ interface FooterProps {
   navItems: { id: string; label: string; href: string }[]
 }
 
-const iconMap: Record<string, any> = { Mail, Globe, Linkedin: LinkedinIcon }
+const iconMap: Record<string, ComponentType<{ size?: number }>> = {
+  Mail,
+  Globe,
+  Linkedin: LinkedinIcon,
+}
 
 export default function Footer({ footer, socialLinks, navItems }: FooterProps) {
   if (!footer) return null

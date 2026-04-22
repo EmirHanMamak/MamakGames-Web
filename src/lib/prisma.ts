@@ -12,7 +12,6 @@ function createPrismaClient() {
   return new PrismaClient({ adapter })
 }
 
-// Ensure we re-init if the client seems old or just force-refresh it
-export const prisma = createPrismaClient()
+export const prisma = globalForPrisma.prisma ?? createPrismaClient()
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma

@@ -1,7 +1,9 @@
 import { prisma } from './src/lib/prisma'
 
 async function check() {
-  console.log('Prisma keys:', Object.keys(prisma))
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('Prisma keys:', Object.keys(prisma))
+  }
 }
 
 check()

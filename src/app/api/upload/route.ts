@@ -4,6 +4,23 @@ import { authOptions } from '@/lib/auth'
 import { writeFile, mkdir } from 'fs/promises'
 import path from 'path'
 
+const ALLOWED_MIME_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+  'image/avif',
+  'image/svg+xml',
+]
+const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024 // 5 MB
+
+function sanitizeFilename(name: string): string {
+  const ext = path.extname(name).toLowerCase()
+  const base = path.basename(name, ext).replace(/[^a-zA-Z0-9-_]/g, '-').substring(0, 64)
+  const timestamp = Date.now()
+  return `${base}-${timestamp}${ext}`
+}
+
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session) {
@@ -17,19 +34,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
     }
 
+    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+      return NextResponse.json({ error: 'Invalid file type. Only images are allowed.' }, { status: 400 })
+    }
+
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      return NextResponse.json({ error: 'File too large. Max size is 5MB.' }, { status: 400 })
+    }
+
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
 
-    // Create uploads directory
     const uploadDir = path.join(process.cwd(), 'public', 'uploads')
     await mkdir(uploadDir, { recursive: true })
 
-    // Generate unique filename
-    const ext = path.extname(file.name)
-    const name = path.basename(file.name, ext).replace(/[^a-zA-Z0-9-_]/g, '-')
-    const timestamp = Date.now()
-    const filename = `${name}-${timestamp}${ext}`
-
+    const filename = sanitizeFilename(file.name)
     const filepath = path.join(uploadDir, filename)
     await writeFile(filepath, buffer)
 
@@ -37,8 +56,7 @@ export async function POST(request: NextRequest) {
       url: `/uploads/${filename}`,
       filename,
     })
-  } catch (error) {
-    console.error('Upload error:', error)
+  } catch {
     return NextResponse.json({ error: 'Upload failed' }, { status: 500 })
   }
 }

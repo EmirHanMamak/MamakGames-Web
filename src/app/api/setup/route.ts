@@ -2,18 +2,15 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import bcryptjs from 'bcryptjs'
 
-// Check if setup has been completed (any admin user exists)
 async function isSetupComplete(): Promise<boolean> {
   try {
     const count = await prisma.adminUser.count()
     return count > 0
   } catch {
-    // DB tables may not exist yet
     return false
   }
 }
 
-// GET: Check setup status
 export async function GET() {
   try {
     const complete = await isSetupComplete()
@@ -28,7 +25,7 @@ export async function GET() {
         DATABASE_URL: process.env.DATABASE_URL ? 'set' : 'using default',
       },
     })
-  } catch (err) {
+  } catch {
     return NextResponse.json(
       { error: 'Database not initialized. Run prisma db push first.' },
       { status: 503 }
@@ -36,10 +33,8 @@ export async function GET() {
   }
 }
 
-// POST: Create first admin user
 export async function POST(request: NextRequest) {
   try {
-    // Block setup if already completed
     const complete = await isSetupComplete()
     if (complete) {
       return NextResponse.json(
@@ -48,8 +43,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const body = await request.json()
-    const { email, password, name } = body
+    let body: Record<string, unknown>
+    try {
+      body = await request.json()
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON body.' }, { status: 400 })
+    }
+
+    const email = typeof body.email === 'string' ? body.email : ''
+    const password = typeof body.password === 'string' ? body.password : ''
+    const name = typeof body.name === 'string' ? body.name : 'Admin'
 
     if (!email || !password) {
       return NextResponse.json(
@@ -65,33 +68,29 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create admin user
     const hashedPassword = await bcryptjs.hash(password, 12)
     await prisma.adminUser.create({
-      data: {
-        email,
-        password: hashedPassword,
-        name: name || 'Admin',
-      },
+      data: { email, password: hashedPassword, name },
     })
 
-    // Bootstrap default singleton settings rows if they don't exist
     const singletons = [
-      { model: 'siteSettings', id: 'main' },
-      { model: 'seoSettings', id: 'main' },
-      { model: 'heroSection', id: 'main' },
-      { model: 'aboutSection', id: 'main' },
-      { model: 'contactInfo', id: 'main' },
-      { model: 'footerSettings', id: 'main' },
+      { model: 'siteSettings' as const, id: 'main' },
+      { model: 'seoSettings' as const, id: 'main' },
+      { model: 'heroSection' as const, id: 'main' },
+      { model: 'aboutSection' as const, id: 'main' },
+      { model: 'contactInfo' as const, id: 'main' },
+      { model: 'footerSettings' as const, id: 'main' },
     ]
 
     for (const s of singletons) {
       try {
-        const model = (prisma as any)[s.model]
-        if (model) {
-          const existing = await model.findUnique({ where: { id: s.id } })
-          if (!existing) {
-            await model.create({ data: { id: s.id } })
+        const model = (prisma as unknown as Record<string, unknown>)[s.model]
+        if (model && typeof model === 'object' && model !== null) {
+          const findUnique = (model as Record<string, unknown>).findUnique as (args: unknown) => Promise<unknown>
+          const create = (model as Record<string, unknown>).create as (args: unknown) => Promise<unknown>
+          if (findUnique && create) {
+            const existing = await findUnique({ where: { id: s.id } })
+            if (!existing) await create({ data: { id: s.id } })
           }
         }
       } catch {
@@ -100,9 +99,9 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ success: true, message: 'Admin account created successfully.' })
-  } catch (err: any) {
-    console.error('Setup error:', err)
-    if (err?.code === 'P2002') {
+  } catch (err) {
+    const errorCode = err && typeof err === 'object' && 'code' in err ? (err as { code: string }).code : undefined
+    if (errorCode === 'P2002') {
       return NextResponse.json(
         { error: 'An account with this email already exists.' },
         { status: 409 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Mail, MapPin, Globe, Send, ArrowUpRight } from 'lucide-react'
 import { LinkedinIcon } from './icons/LinkedinIcon'
 import ScrollReveal from './ScrollReveal'
@@ -21,6 +21,7 @@ interface ContactProps {
 export default function Contact({ contactInfo }: ContactProps) {
   const [form, setForm] = useState({ name: '', email: '', projectType: '', message: '' })
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   if (!contactInfo) return null
 
@@ -33,15 +34,16 @@ export default function Contact({ contactInfo }: ContactProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
     setStatus('loading')
     try {
       await createSubmission(form)
       setStatus('success')
       setForm({ name: '', email: '', projectType: '', message: '' })
-      setTimeout(() => setStatus('idle'), 4000)
+      timeoutRef.current = setTimeout(() => setStatus('idle'), 4000)
     } catch {
       setStatus('error')
-      setTimeout(() => setStatus('idle'), 3000)
+      timeoutRef.current = setTimeout(() => setStatus('idle'), 3000)
     }
   }
 

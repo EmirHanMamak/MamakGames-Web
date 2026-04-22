@@ -9,20 +9,41 @@ import About from '@/components/About'
 import Services from '@/components/Services'
 import Contact from '@/components/Contact'
 import Footer from '@/components/Footer'
+import type {
+  Game,
+  SiteSettings,
+  HeroSection,
+  AboutSection,
+  ServiceItem,
+  ContactInfo,
+  SocialLink,
+  FooterSettings,
+  NavigationItem,
+} from '@/lib/types'
 
 interface HomeClientProps {
-  siteSettings: any
-  hero: any
-  games: any[]
-  about: any
-  services: any[]
-  contactInfo: any
-  socialLinks: any[]
-  footer: any
-  navItems: any[]
+  siteSettings: SiteSettings | null
+  hero: HeroSection | null
+  games: Game[]
+  about: AboutSection | null
+  services: ServiceItem[]
+  contactInfo: ContactInfo | null
+  socialLinks: SocialLink[]
+  footer: FooterSettings | null
+  navItems: NavigationItem[]
 }
 
-export function HomeClient({ siteSettings, hero, games, about, services, contactInfo, socialLinks, footer, navItems }: HomeClientProps) {
+export function HomeClient({
+  siteSettings,
+  hero,
+  games,
+  about,
+  services,
+  contactInfo,
+  socialLinks,
+  footer,
+  navItems,
+}: HomeClientProps) {
   const [loaded, setLoaded] = useState(!siteSettings?.showLoadingScreen)
 
   useEffect(() => {

@@ -3,122 +3,204 @@
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
 
+export type ActionResult<T> =
+  | { success: true; data: T }
+  | { success: false; error: string }
+
+function handleError(error: unknown): string {
+  if (error instanceof Error) return error.message
+  if (typeof error === 'string') return error
+  return 'An unexpected error occurred'
+}
+
 // ─── Site Settings ───────────────────────────────────
 export async function getSiteSettings() {
   try {
     return await prisma.siteSettings.findUnique({ where: { id: 'main' } })
-  } catch (err) {
-    console.warn("DB not ready for getSiteSettings")
+  } catch {
     return null
   }
 }
 
 export async function updateSiteSettings(data: { logoText?: string; loadingText?: string; showLoadingScreen?: boolean }) {
-  const result = await prisma.siteSettings.update({ where: { id: 'main' }, data })
-  revalidatePath('/')
-  return result
+  try {
+    const result = await prisma.siteSettings.update({ where: { id: 'main' }, data })
+    revalidatePath('/')
+    return { success: true, data: result } as ActionResult<typeof result>
+  } catch (error) {
+    return { success: false, error: handleError(error) }
+  }
 }
 
 // ─── SEO ─────────────────────────────────────────────
 export async function getSeoSettings() {
-  return prisma.seoSettings.findUnique({ where: { id: 'main' } })
+  try {
+    return await prisma.seoSettings.findUnique({ where: { id: 'main' } })
+  } catch {
+    return null
+  }
 }
 
 export async function updateSeoSettings(data: { metaTitle?: string; metaDescription?: string; ogImage?: string; keywords?: string }) {
-  const result = await prisma.seoSettings.update({ where: { id: 'main' }, data })
-  revalidatePath('/')
-  return result
+  try {
+    const result = await prisma.seoSettings.update({ where: { id: 'main' }, data })
+    revalidatePath('/')
+    return { success: true, data: result } as ActionResult<typeof result>
+  } catch (error) {
+    return { success: false, error: handleError(error) }
+  }
 }
 
 // ─── Navigation ──────────────────────────────────────
 export async function getNavigationItems() {
   try {
     return await prisma.navigationItem.findMany({ orderBy: { sortOrder: 'asc' } })
-  } catch (err) {
-    console.warn("DB not ready for getNavigationItems")
+  } catch {
     return []
   }
 }
 
 export async function createNavigationItem(data: { label: string; href: string; sortOrder?: number }) {
-  const result = await prisma.navigationItem.create({ data })
-  revalidatePath('/')
-  return result
+  try {
+    const result = await prisma.navigationItem.create({ data })
+    revalidatePath('/')
+    return { success: true, data: result } as ActionResult<typeof result>
+  } catch (error) {
+    return { success: false, error: handleError(error) }
+  }
 }
 
 export async function updateNavigationItem(id: string, data: { label?: string; href?: string; sortOrder?: number; visible?: boolean }) {
-  const result = await prisma.navigationItem.update({ where: { id }, data })
-  revalidatePath('/')
-  return result
+  try {
+    const result = await prisma.navigationItem.update({ where: { id }, data })
+    revalidatePath('/')
+    return { success: true, data: result } as ActionResult<typeof result>
+  } catch (error) {
+    return { success: false, error: handleError(error) }
+  }
 }
 
 export async function deleteNavigationItem(id: string) {
-  await prisma.navigationItem.delete({ where: { id } })
-  revalidatePath('/')
+  try {
+    await prisma.navigationItem.delete({ where: { id } })
+    revalidatePath('/')
+    return { success: true, data: undefined } as ActionResult<undefined>
+  } catch (error) {
+    return { success: false, error: handleError(error) }
+  }
 }
 
 // ─── Hero ────────────────────────────────────────────
 export async function getHeroSection() {
-  return prisma.heroSection.findUnique({ where: { id: 'main' } })
+  try {
+    return await prisma.heroSection.findUnique({ where: { id: 'main' } })
+  } catch {
+    return null
+  }
 }
 
 export async function updateHeroSection(data: {
   tagLine?: string; title?: string; highlightWord?: string; subtitle?: string;
   ctaPrimaryText?: string; ctaPrimaryLink?: string; ctaSecondaryText?: string; ctaSecondaryLink?: string; visible?: boolean
 }) {
-  const result = await prisma.heroSection.update({ where: { id: 'main' }, data })
-  revalidatePath('/')
-  return result
+  try {
+    const result = await prisma.heroSection.update({ where: { id: 'main' }, data })
+    revalidatePath('/')
+    return { success: true, data: result } as ActionResult<typeof result>
+  } catch (error) {
+    return { success: false, error: handleError(error) }
+  }
 }
 
 // ─── About ───────────────────────────────────────────
 export async function getAboutSection() {
-  return prisma.aboutSection.findUnique({ where: { id: 'main' } })
+  try {
+    return await prisma.aboutSection.findUnique({ where: { id: 'main' } })
+  } catch {
+    return null
+  }
 }
 
-export async function updateAboutSection(data: Record<string, any>) {
-  const result = await prisma.aboutSection.update({ where: { id: 'main' }, data })
-  revalidatePath('/')
-  return result
+export async function updateAboutSection(data: {
+  description?: string; founderName?: string; founderRole?: string; founderBio?: string;
+  founderImage?: string; stat1Label?: string; stat1Value?: string; stat2Label?: string; stat2Value?: string;
+  stat3Label?: string; stat3Value?: string; visible?: boolean
+}) {
+  try {
+    const result = await prisma.aboutSection.update({ where: { id: 'main' }, data })
+    revalidatePath('/')
+    return { success: true, data: result } as ActionResult<typeof result>
+  } catch (error) {
+    return { success: false, error: handleError(error) }
+  }
 }
 
 // ─── Services ────────────────────────────────────────
 export async function getServiceItems() {
-  return prisma.serviceItem.findMany({ orderBy: { sortOrder: 'asc' } })
+  try {
+    return await prisma.serviceItem.findMany({ orderBy: { sortOrder: 'asc' } })
+  } catch {
+    return []
+  }
 }
 
 export async function createServiceItem(data: { icon: string; title: string; description: string; sortOrder?: number }) {
-  const result = await prisma.serviceItem.create({ data })
-  revalidatePath('/')
-  return result
+  try {
+    const result = await prisma.serviceItem.create({ data })
+    revalidatePath('/')
+    return { success: true, data: result } as ActionResult<typeof result>
+  } catch (error) {
+    return { success: false, error: handleError(error) }
+  }
 }
 
 export async function updateServiceItem(id: string, data: { icon?: string; title?: string; description?: string; sortOrder?: number; visible?: boolean }) {
-  const result = await prisma.serviceItem.update({ where: { id }, data })
-  revalidatePath('/')
-  return result
+  try {
+    const result = await prisma.serviceItem.update({ where: { id }, data })
+    revalidatePath('/')
+    return { success: true, data: result } as ActionResult<typeof result>
+  } catch (error) {
+    return { success: false, error: handleError(error) }
+  }
 }
 
 export async function deleteServiceItem(id: string) {
-  await prisma.serviceItem.delete({ where: { id } })
-  revalidatePath('/')
+  try {
+    await prisma.serviceItem.delete({ where: { id } })
+    revalidatePath('/')
+    return { success: true, data: undefined } as ActionResult<undefined>
+  } catch (error) {
+    return { success: false, error: handleError(error) }
+  }
 }
 
 // ─── Games ───────────────────────────────────────────
 export async function getGames() {
-  return prisma.game.findMany({ orderBy: { sortOrder: 'asc' }, include: { images: true } })
+  try {
+    return await prisma.game.findMany({ orderBy: { sortOrder: 'asc' }, include: { images: true } })
+  } catch {
+    return []
+  }
 }
 
 export async function getPublishedGames() {
-  return prisma.game.findMany({
-    where: { published: true },
-    orderBy: { sortOrder: 'asc' },
-    include: { images: true },
-  })
+  try {
+    return await prisma.game.findMany({
+      where: { published: true },
+      orderBy: { sortOrder: 'asc' },
+      include: { images: true },
+    })
+  } catch {
+    return []
+  }
 }
 
 export async function getGameById(id: string) {
-  return prisma.game.findUnique({ where: { id }, include: { images: true } })
+  try {
+    return await prisma.game.findUnique({ where: { id }, include: { images: true } })
+  } catch {
+    return null
+  }
 }
 
 export async function createGame(data: {
@@ -127,139 +209,237 @@ export async function createGame(data: {
   webUrl?: string; steamUrl?: string; featured?: boolean; published?: boolean;
   releaseDate?: string; sortOrder?: number
 }) {
-  const result = await prisma.game.create({ data })
-  revalidatePath('/')
-  revalidatePath('/admin/games')
-  return result
+  try {
+    const result = await prisma.game.create({ data })
+    revalidatePath('/')
+    revalidatePath('/admin/games')
+    return { success: true, data: result } as ActionResult<typeof result>
+  } catch (error) {
+    return { success: false, error: handleError(error) }
+  }
 }
 
-export async function updateGame(id: string, data: Record<string, any>) {
-  // Separate images from data if present to avoid nested update issues
-  const { images, ...gameData } = data
-  const result = await prisma.game.update({ where: { id }, data: gameData })
-  revalidatePath('/')
-  revalidatePath('/admin/games')
-  return result
+export async function updateGame(id: string, data: {
+  title?: string; slug?: string; shortDescription?: string; fullDescription?: string;
+  coverImage?: string; genre?: string; appStoreUrl?: string; googlePlayUrl?: string;
+  webUrl?: string; steamUrl?: string; featured?: boolean; published?: boolean;
+  releaseDate?: string; sortOrder?: number
+}) {
+  try {
+    const result = await prisma.game.update({ where: { id }, data })
+    revalidatePath('/')
+    revalidatePath('/admin/games')
+    return { success: true, data: result } as ActionResult<typeof result>
+  } catch (error) {
+    return { success: false, error: handleError(error) }
+  }
 }
 
 export async function addGameImage(gameId: string, url: string) {
-  const result = await prisma.gameImage.create({
-    data: { gameId, url }
-  })
-  revalidatePath('/')
-  revalidatePath(`/admin/games/${gameId}`)
-  return result
+  try {
+    const result = await prisma.gameImage.create({ data: { gameId, url } })
+    revalidatePath('/')
+    revalidatePath(`/admin/games/${gameId}`)
+    return { success: true, data: result } as ActionResult<typeof result>
+  } catch (error) {
+    return { success: false, error: handleError(error) }
+  }
 }
 
 export async function deleteGameImage(id: string) {
-  const image = await prisma.gameImage.findUnique({ where: { id } })
-  if (!image) return
-  await prisma.gameImage.delete({ where: { id } })
-  revalidatePath('/')
-  revalidatePath(`/admin/games/${image.gameId}`)
+  try {
+    const image = await prisma.gameImage.findUnique({ where: { id } })
+    if (!image) return { success: false, error: 'Image not found' } as ActionResult<undefined>
+    await prisma.gameImage.delete({ where: { id } })
+    revalidatePath('/')
+    revalidatePath(`/admin/games/${image.gameId}`)
+    return { success: true, data: undefined } as ActionResult<undefined>
+  } catch (error) {
+    return { success: false, error: handleError(error) }
+  }
 }
 
 export async function deleteGame(id: string) {
-  await prisma.game.delete({ where: { id } })
-  revalidatePath('/')
-  revalidatePath('/admin/games')
+  try {
+    await prisma.game.delete({ where: { id } })
+    revalidatePath('/')
+    revalidatePath('/admin/games')
+    return { success: true, data: undefined } as ActionResult<undefined>
+  } catch (error) {
+    return { success: false, error: handleError(error) }
+  }
 }
 
 export async function toggleGamePublish(id: string) {
-  const game = await prisma.game.findUnique({ where: { id } })
-  if (!game) throw new Error('Game not found')
-  const result = await prisma.game.update({ where: { id }, data: { published: !game.published } })
-  revalidatePath('/')
-  revalidatePath('/admin/games')
-  return result
+  try {
+    const game = await prisma.game.findUnique({ where: { id } })
+    if (!game) return { success: false, error: 'Game not found' } as ActionResult<undefined>
+    const result = await prisma.game.update({ where: { id }, data: { published: !game.published } })
+    revalidatePath('/')
+    revalidatePath('/admin/games')
+    return { success: true, data: result } as ActionResult<typeof result>
+  } catch (error) {
+    return { success: false, error: handleError(error) }
+  }
 }
 
 // ─── Contact ─────────────────────────────────────────
 export async function getContactInfo() {
-  return prisma.contactInfo.findUnique({ where: { id: 'main' } })
+  try {
+    return await prisma.contactInfo.findUnique({ where: { id: 'main' } })
+  } catch {
+    return null
+  }
 }
 
-export async function updateContactInfo(data: Record<string, any>) {
-  const result = await prisma.contactInfo.update({ where: { id: 'main' }, data })
-  revalidatePath('/')
-  return result
+export async function updateContactInfo(data: {
+  email?: string; phone?: string; location?: string; availability?: string;
+  ctaText?: string; ctaLink?: string; visible?: boolean
+}) {
+  try {
+    const result = await prisma.contactInfo.update({ where: { id: 'main' }, data })
+    revalidatePath('/')
+    return { success: true, data: result } as ActionResult<typeof result>
+  } catch (error) {
+    return { success: false, error: handleError(error) }
+  }
 }
 
 // ─── Contact Submissions ─────────────────────────────
 export async function createSubmission(data: { name: string; email: string; projectType?: string; message: string }) {
-  return prisma.contactSubmission.create({ data })
+  try {
+    const result = await prisma.contactSubmission.create({ data })
+    return { success: true, data: result } as ActionResult<typeof result>
+  } catch (error) {
+    return { success: false, error: handleError(error) }
+  }
 }
 
 export async function getSubmissions() {
-  return prisma.contactSubmission.findMany({ orderBy: { createdAt: 'desc' } })
+  try {
+    return await prisma.contactSubmission.findMany({ orderBy: { createdAt: 'desc' } })
+  } catch {
+    return []
+  }
 }
 
 export async function markSubmissionRead(id: string) {
-  return prisma.contactSubmission.update({ where: { id }, data: { read: true } })
+  try {
+    const result = await prisma.contactSubmission.update({ where: { id }, data: { read: true } })
+    return { success: true, data: result } as ActionResult<typeof result>
+  } catch (error) {
+    return { success: false, error: handleError(error) }
+  }
 }
 
 export async function deleteSubmission(id: string) {
-  await prisma.contactSubmission.delete({ where: { id } })
+  try {
+    await prisma.contactSubmission.delete({ where: { id } })
+    return { success: true, data: undefined } as ActionResult<undefined>
+  } catch (error) {
+    return { success: false, error: handleError(error) }
+  }
 }
 
 // ─── Social Links ────────────────────────────────────
 export async function getSocialLinks() {
-  return prisma.socialLink.findMany({ where: { visible: true }, orderBy: { sortOrder: 'asc' } })
+  try {
+    return await prisma.socialLink.findMany({ where: { visible: true }, orderBy: { sortOrder: 'asc' } })
+  } catch {
+    return []
+  }
 }
 
 export async function getAllSocialLinks() {
-  return prisma.socialLink.findMany({ orderBy: { sortOrder: 'asc' } })
+  try {
+    return await prisma.socialLink.findMany({ orderBy: { sortOrder: 'asc' } })
+  } catch {
+    return []
+  }
 }
 
 export async function createSocialLink(data: { platform: string; url: string; icon?: string; sortOrder?: number }) {
-  const result = await prisma.socialLink.create({ data })
-  revalidatePath('/')
-  return result
+  try {
+    const result = await prisma.socialLink.create({ data })
+    revalidatePath('/')
+    return { success: true, data: result } as ActionResult<typeof result>
+  } catch (error) {
+    return { success: false, error: handleError(error) }
+  }
 }
 
 export async function updateSocialLink(id: string, data: { platform?: string; url?: string; icon?: string; sortOrder?: number; visible?: boolean }) {
-  const result = await prisma.socialLink.update({ where: { id }, data })
-  revalidatePath('/')
-  return result
+  try {
+    const result = await prisma.socialLink.update({ where: { id }, data })
+    revalidatePath('/')
+    return { success: true, data: result } as ActionResult<typeof result>
+  } catch (error) {
+    return { success: false, error: handleError(error) }
+  }
 }
 
 export async function deleteSocialLink(id: string) {
-  await prisma.socialLink.delete({ where: { id } })
-  revalidatePath('/')
+  try {
+    await prisma.socialLink.delete({ where: { id } })
+    revalidatePath('/')
+    return { success: true, data: undefined } as ActionResult<undefined>
+  } catch (error) {
+    return { success: false, error: handleError(error) }
+  }
 }
 
 // ─── Footer ──────────────────────────────────────────
 export async function getFooterSettings() {
-  return prisma.footerSettings.findUnique({ where: { id: 'main' } })
+  try {
+    return await prisma.footerSettings.findUnique({ where: { id: 'main' } })
+  } catch {
+    return null
+  }
 }
 
 export async function updateFooterSettings(data: { description?: string; copyrightText?: string; bottomText?: string }) {
-  const result = await prisma.footerSettings.update({ where: { id: 'main' }, data })
-  revalidatePath('/')
-  return result
+  try {
+    const result = await prisma.footerSettings.update({ where: { id: 'main' }, data })
+    revalidatePath('/')
+    return { success: true, data: result } as ActionResult<typeof result>
+  } catch (error) {
+    return { success: false, error: handleError(error) }
+  }
 }
 
 // ─── Legal ───────────────────────────────────────────
 export async function getPrivacyPolicy() {
-  if (!(prisma as any).privacyPolicy) return null
-  return (prisma as any).privacyPolicy.findUnique({ where: { id: 'main' } })
+  try {
+    return await prisma.privacyPolicy.findUnique({ where: { id: 'main' } })
+  } catch {
+    return null
+  }
 }
 
 export async function updatePrivacyPolicy(data: { content: string }) {
-  if (!(prisma as any).privacyPolicy) return null
-  const result = await (prisma as any).privacyPolicy.update({ where: { id: 'main' }, data })
-  revalidatePath('/privacy-policy')
-  return result
+  try {
+    const result = await prisma.privacyPolicy.update({ where: { id: 'main' }, data })
+    revalidatePath('/privacy-policy')
+    return { success: true, data: result } as ActionResult<typeof result>
+  } catch (error) {
+    return { success: false, error: handleError(error) }
+  }
 }
 
 export async function getTermsOfService() {
-  if (!(prisma as any).termsOfService) return null
-  return (prisma as any).termsOfService.findUnique({ where: { id: 'main' } })
+  try {
+    return await prisma.termsOfService.findUnique({ where: { id: 'main' } })
+  } catch {
+    return null
+  }
 }
 
 export async function updateTermsOfService(data: { content: string }) {
-  if (!(prisma as any).termsOfService) return null
-  const result = await (prisma as any).termsOfService.update({ where: { id: 'main' }, data })
-  revalidatePath('/terms-of-service')
-  return result
+  try {
+    const result = await prisma.termsOfService.update({ where: { id: 'main' }, data })
+    revalidatePath('/terms-of-service')
+    return { success: true, data: result } as ActionResult<typeof result>
+  } catch (error) {
+    return { success: false, error: handleError(error) }
+  }
 }

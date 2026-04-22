@@ -12,13 +12,11 @@ const poppins = Poppins({
 export async function generateMetadata() {
   let seo = null
   try {
-    if ((prisma as any).seoSettings) {
-      seo = await (prisma as any).seoSettings.findUnique({ where: { id: 'main' } })
-    }
-  } catch (err) {
-    console.warn('Skipping metadata fetch during build: DB not initialized yet.')
+    seo = await prisma.seoSettings.findUnique({ where: { id: 'main' } })
+  } catch {
+    // DB may not be initialized during build
   }
-  
+
   return {
     title: seo?.metaTitle || 'Mamak Games — Creating Engaging Games for Everyone',
     description: seo?.metaDescription || 'Mamak Games is an independent game studio focused on developing fun, polished, and accessible games for mobile and web platforms.',

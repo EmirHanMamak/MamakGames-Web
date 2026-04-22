@@ -1,5 +1,6 @@
 'use client'
 
+import type { ComponentType } from 'react'
 import ScrollReveal from './ScrollReveal'
 import * as LucideIcons from 'lucide-react'
 
@@ -15,9 +16,9 @@ interface ServicesProps {
 }
 
 export default function Services({ services }: ServicesProps) {
-  const getIcon = (name: string) => {
-    const Icon = (LucideIcons as any)[name]
-    return Icon || LucideIcons.Wrench
+  const getIcon = (name: string): ComponentType<{ size?: number; className?: string }> => {
+    const icon = (LucideIcons as unknown as Record<string, ComponentType<{ size?: number; className?: string }> | undefined>)[name]
+    return icon || LucideIcons.Wrench
   }
 
   return (

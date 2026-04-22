@@ -1,17 +1,21 @@
 import { PrismaClient } from '../src/generated/prisma/client'
 import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3'
 import bcryptjs from 'bcryptjs'
+import crypto from 'crypto'
 import path from 'path'
 
 const dbPath = path.join(process.cwd(), 'prisma', 'dev.db')
 const adapter = new PrismaBetterSqlite3({ url: `file:${dbPath}` })
 const prisma = new PrismaClient({ adapter })
 
-async function main() {
-  console.log('🌱 Seeding database...')
+function generateRandomPassword(length = 16): string {
+  return crypto.randomBytes(length).toString('base64url').slice(0, length)
+}
 
-  // Admin user
-  const hashedPassword = await bcryptjs.hash('mamakgames2026', 12)
+async function main() {
+  const seedPassword = process.env.ADMIN_SEED_PASSWORD || generateRandomPassword()
+  const hashedPassword = await bcryptjs.hash(seedPassword, 12)
+
   await prisma.adminUser.upsert({
     where: { email: 'admin@mamakgames.com' },
     update: {},
@@ -21,7 +25,11 @@ async function main() {
       name: 'Emir Han Mamak',
     },
   })
-  console.log('✅ Admin user created (admin@mamakgames.com / mamakgames2026)')
+
+  if (!process.env.ADMIN_SEED_PASSWORD) {
+    console.log(`\n⚠️  Random admin seed password generated: ${seedPassword}`)
+    console.log('Set ADMIN_SEED_PASSWORD in your .env to use a fixed password.\n')
+  }
 
   // Site Settings
   await prisma.siteSettings.upsert({
@@ -48,7 +56,7 @@ async function main() {
   await prisma.aboutSection.upsert({
     where: { id: 'main' },
     update: {},
-    create: { 
+    create: {
       id: 'main',
       founderImage: '/uploads/EmirHanMamak_Cartoon.png'
     },
@@ -138,20 +146,19 @@ async function main() {
 `
   const termsContent = `
 <h2>1. Acceptance of Terms</h2>
-<p>By downloading, installing, or using Mamak Games’ applications or website, you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our services.</p>
+<p>By downloading, installing, or using Mamak Games' applications or website, you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our services.</p>
 
 <h2>2. License</h2>
 <p>Mamak Games grants you a limited, non-exclusive, non-transferable, revocable license to use our games for your personal, non-commercial entertainment. You may not copy, modify, distribute, or reverse engineer any part of our games.</p>
 
 <h2>3. User Conduct</h2>
-<p>You agree not to use our services to:
+<p>You agree not to use our services to:</p>
 <ul>
   <li>Violate any laws or regulations.</li>
   <li>Hurt, harass, or threaten others.</li>
   <li>Attempt to cheat, hack, or exploit game mechanics for unauthorized gain.</li>
   <li>Engage in any activity that disrupts the gameplay experience for others.</li>
 </ul>
-</p>
 
 <h2>4. Intellectual Property</h2>
 <p>All content, including graphics, code, music, and characters, is the property of Mamak Games and protected by copyright and intellectual property laws. All rights not expressly granted are reserved.</p>
@@ -162,7 +169,7 @@ async function main() {
 <h2>6. Termination</h2>
 <p>We reserve the right to terminate or suspend your access to our services at any time, without notice, for conduct that we believe violates these Terms or is harmful to other users or our business interests.</p>
 `
-  
+
   await prisma.privacyPolicy.upsert({
     where: { id: 'main' },
     update: {},
@@ -246,7 +253,7 @@ async function main() {
     }
   }
 
-  console.log('✅ Seed complete!')
+  console.log('Seed complete!')
 }
 
 main()

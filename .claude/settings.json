@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "apiKeyHelper": "bash -c 'echo fw_Ya7RAdBemGabYZ9oNsiLNq'",
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://api.fireworks.ai/inference",
+    "ANTHROPIC_MODEL": "accounts/fireworks/models/kimi-k2p6",
+    "ANTHROPIC_SMALL_FAST_MODEL": "accounts/fireworks/models/kimi-k2p6",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "accounts/fireworks/models/kimi-k2p6",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "accounts/fireworks/models/kimi-k2p6",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "accounts/fireworks/models/kimi-k2p6",
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
+  "model": "accounts/fireworks/models/kimi-k2p6"
+}

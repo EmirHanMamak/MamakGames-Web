@@ -1,6 +1,60 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-brand-primary: #FF0055;
+  --color-brand-secondary: #00F0FF;
+  --color-brand-accent: #7000FF;
+  --color-bg-base: #05040A;
+  --color-bg-surface: #0D0B1A;
+  --color-bg-surface-alt: #141126;
+  --color-bg-surface-raised: #1B1733;
+  --color-bg-surface-hover: #231E40;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: rgba(255,255,255,0.72);
+  --color-text-muted: rgba(255,255,255,0.44);
+  --color-border-default: rgba(255,255,255,0.08);
+  --color-border-hover: rgba(255,255,255,0.14);
+  --color-border-active: rgba(255,255,255,0.20);
+  --font-headline: 'Poppins', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --animate-fade-in-up: fadeInUp 0.6s ease-out forwards;
+  --animate-fade-in: fadeIn 0.5s ease-out forwards;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-float-delayed: float 8s ease-in-out 2s infinite;
+  --animate-pulse-glow: pulseGlow 3s ease-in-out infinite;
+  --animate-shimmer: shimmer 2s ease-in-out infinite;
+  --animate-neon-pulse: neonPulse 2s ease-in-out infinite;
+}
+
+@keyframes neonPulse {
+  0%, 100% { filter: drop-shadow(0 0 10px #FF0055) drop-shadow(0 0 20px #FF0055); }
+  50% { filter: drop-shadow(0 0 15px #FF0055) drop-shadow(0 0 30px #FF0055); }
+}
+
+@keyframes fadeInUp {
+  0% { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-16px); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
 
 body {
   background-color: #05040A;

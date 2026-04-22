@@ -1,28 +1,64 @@
 import { prisma } from '@/lib/prisma'
 import { HomeClient } from './HomeClient'
+import type {
+  Game,
+  SiteSettings,
+  HeroSection,
+  AboutSection,
+  ServiceItem,
+  ContactInfo,
+  SocialLink,
+  FooterSettings,
+  NavigationItem,
+} from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
 
 export default async function Home() {
-  let siteSettings = null, hero = null, games: any[] = [], about = null
-  let services: any[] = [], contactInfo = null, socialLinks: any[] = []
-  let footer = null, navItems: any[] = []
+  let siteSettings: SiteSettings | null = null
+  let hero: HeroSection | null = null
+  let games: Game[] = []
+  let about: AboutSection | null = null
+  let services: ServiceItem[] = []
+  let contactInfo: ContactInfo | null = null
+  let socialLinks: SocialLink[] = []
+  let footer: FooterSettings | null = null
+  let navItems: NavigationItem[] = []
 
   try {
-    ;[siteSettings, hero, games, about, services, contactInfo, socialLinks, footer, navItems] =
-      await Promise.all([
-        (prisma as any).siteSettings?.findUnique({ where: { id: 'main' } }) ?? null,
-        (prisma as any).heroSection?.findUnique({ where: { id: 'main' } }) ?? null,
-        (prisma as any).game?.findMany({ where: { published: true }, orderBy: { sortOrder: 'asc' } }) ?? [],
-        (prisma as any).aboutSection?.findUnique({ where: { id: 'main' } }) ?? null,
-        (prisma as any).serviceItem?.findMany({ where: { visible: true }, orderBy: { sortOrder: 'asc' } }) ?? [],
-        (prisma as any).contactInfo?.findUnique({ where: { id: 'main' } }) ?? null,
-        (prisma as any).socialLink?.findMany({ where: { visible: true }, orderBy: { sortOrder: 'asc' } }) ?? [],
-        (prisma as any).footerSettings?.findUnique({ where: { id: 'main' } }) ?? null,
-        (prisma as any).navigationItem?.findMany({ where: { visible: true }, orderBy: { sortOrder: 'asc' } }) ?? [],
-      ])
-  } catch (err) {
-    console.warn('Home page: DB not ready yet, rendering with defaults.', err)
+    const [
+      siteSettingsResult,
+      heroResult,
+      gamesResult,
+      aboutResult,
+      servicesResult,
+      contactInfoResult,
+      socialLinksResult,
+      footerResult,
+      navItemsResult,
+    ] = await Promise.all([
+      prisma.siteSettings.findUnique({ where: { id: 'main' } }).catch(() => null),
+      prisma.heroSection.findUnique({ where: { id: 'main' } }).catch(() => null),
+      prisma.game.findMany({ where: { published: true }, orderBy: { sortOrder: 'asc' }, include: { images: true } }).catch(() => []),
+      prisma.aboutSection.findUnique({ where: { id: 'main' } }).catch(() => null),
+      prisma.serviceItem.findMany({ where: { visible: true }, orderBy: { sortOrder: 'asc' } }).catch(() => []),
+      prisma.contactInfo.findUnique({ where: { id: 'main' } }).catch(() => null),
+      prisma.socialLink.findMany({ where: { visible: true }, orderBy: { sortOrder: 'asc' } }).catch(() => []),
+      prisma.footerSettings.findUnique({ where: { id: 'main' } }).catch(() => null),
+      prisma.navigationItem.findMany({ where: { visible: true }, orderBy: { sortOrder: 'asc' } }).catch(() => []),
+    ])
+
+    siteSettings = siteSettingsResult
+    hero = heroResult
+    games = gamesResult
+    about = aboutResult
+    services = servicesResult
+    contactInfo = contactInfoResult
+    socialLinks = socialLinksResult
+    footer = footerResult
+    navItems = navItemsResult
+  } catch {
+    // Silently fail and render with defaults
   }
 
   return (

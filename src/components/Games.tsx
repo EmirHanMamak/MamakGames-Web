@@ -3,7 +3,7 @@
 import { useRef, useState, useEffect } from 'react'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Smartphone, Globe, Calendar, Tag, ChevronLeft, ChevronRight } from 'lucide-react'
+import { X, Smartphone, Globe, Calendar, ChevronLeft, ChevronRight } from 'lucide-react'
 import ScrollReveal from './ScrollReveal'
 
 interface GameImage {
@@ -25,14 +25,13 @@ interface Game {
   steamUrl: string
   featured: boolean
   releaseDate: string
-  images: GameImage[]
+  images?: GameImage[]
 }
 
 interface GamesProps {
   games: Game[]
 }
 
-// ─── Platform Buttons ────────────────────────────────
 function StoreButton({ href, platform, gameTitle, small = false }: { href: string; platform: 'apple' | 'google' | 'web'; gameTitle: string; small?: boolean }) {
   const icons = {
     apple: (
@@ -61,10 +60,10 @@ function StoreButton({ href, platform, gameTitle, small = false }: { href: strin
   const { label, store } = platforms[platform]
 
   return (
-    <a 
-      href={href} 
-      target="_blank" 
-      rel="noopener noreferrer" 
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
       className={`group flex items-center gap-2.5 ${small ? 'px-3 py-1.5 rounded-lg' : 'px-5 py-2.5 rounded-xl'} bg-white shadow-xl hover:shadow-brand-primary/20 transition-all active:scale-95`}
       aria-label={`${gameTitle} on ${store}`}
       onClick={(e) => e.stopPropagation()}
@@ -80,25 +79,24 @@ function StoreButton({ href, platform, gameTitle, small = false }: { href: strin
   )
 }
 
-// ─── Game Modal ──────────────────────────────────────
 function GameModal({ game, onClose }: { game: Game; onClose: () => void }) {
   const [activeImage, setActiveImage] = useState(0)
   const images = [game.coverImage, ...(game.images?.map(i => i.url) || [])].filter(Boolean)
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6"
     >
       <div className="absolute inset-0 bg-black/95 backdrop-blur-xl" onClick={onClose} />
-      
-      <motion.div 
+
+      <motion.div
         layoutId={`game-card-${game.id}`}
         className="relative w-full max-w-6xl max-h-[90vh] bg-[#0c0c0c] border border-white/10 rounded-[40px] overflow-hidden flex flex-col lg:flex-row shadow-2xl"
       >
-        <button 
+        <button
           onClick={onClose}
           className="absolute top-6 right-6 z-50 w-12 h-12 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-brand-primary transition-colors hover:rotate-90 duration-300"
         >
@@ -122,13 +120,13 @@ function GameModal({ game, onClose }: { game: Game; onClose: () => void }) {
           {/* Controls */}
           {images.length > 1 && (
             <div className="absolute inset-0 flex items-center justify-between px-6 opacity-0 group-hover/media:opacity-100 transition-opacity">
-              <button 
+              <button
                 onClick={(e) => { e.stopPropagation(); setActiveImage(p => (p - 1 + images.length) % images.length) }}
                 className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md text-white flex items-center justify-center hover:bg-brand-primary transition-colors"
               >
                 <ChevronLeft size={20} />
               </button>
-              <button 
+              <button
                 onClick={(e) => { e.stopPropagation(); setActiveImage(p => (p + 1) % images.length) }}
                 className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md text-white flex items-center justify-center hover:bg-brand-primary transition-colors"
               >
@@ -139,11 +137,11 @@ function GameModal({ game, onClose }: { game: Game; onClose: () => void }) {
 
           {/* Thumbnails */}
           <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 px-4 py-2 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10">
-            {images.map((img, i) => (
-              <button 
-                key={i} 
-                onClick={() => setActiveImage(i)}
-                className={`w-12 h-8 rounded-md overflow-hidden border-2 transition-all ${activeImage === i ? 'border-brand-primary scale-110' : 'border-transparent opacity-50 hover:opacity-100'}`}
+            {images.map((img) => (
+              <button
+                key={img}
+                onClick={() => setActiveImage(images.indexOf(img))}
+                className={`w-12 h-8 rounded-md overflow-hidden border-2 transition-all ${activeImage === images.indexOf(img) ? 'border-brand-primary scale-110' : 'border-transparent opacity-50 hover:opacity-100'}`}
               >
                 <Image src={img} alt="" width={48} height={32} className="object-cover w-full h-full" />
               </button>
@@ -165,7 +163,7 @@ function GameModal({ game, onClose }: { game: Game; onClose: () => void }) {
               <p className="border-l-4 border-brand-primary pl-6 py-2 bg-gradient-to-r from-brand-primary/5 to-transparent">{game.shortDescription}</p>
               <div className="prose prose-invert prose-brand max-w-none">
                 {game.fullDescription.split('\n').map((para, i) => (
-                  <p key={i}>{para}</p>
+                  <p key={`${i}-${para.slice(0, 20)}`}>{para}</p>
                 ))}
               </div>
             </div>
@@ -192,7 +190,7 @@ export default function Games({ games }: GamesProps) {
   const [mouseX, setMouseX] = useState(0)
 
   // Duplicate games for infinite loop to ensure width always exceeds container
-  const displayGames = [...games, ...games, ...games, ...games, ...games, ...games]
+  const displayGames = Array.from({ length: 6 }, () => games).flat()
 
   useEffect(() => {
     if (!containerRef.current || isHovered) return
@@ -200,9 +198,8 @@ export default function Games({ games }: GamesProps) {
     let animationId: number
     const scroll = () => {
       if (containerRef.current) {
-        containerRef.current.scrollLeft += 0.8 // Slightly slower for elegance
-        
-        // Loop back when reached the center clone
+        containerRef.current.scrollLeft += 0.8
+
         const firstBatchWidth = (containerRef.current.scrollWidth / 6)
         if (containerRef.current.scrollLeft >= firstBatchWidth * 5) {
           containerRef.current.scrollLeft = firstBatchWidth
@@ -215,7 +212,6 @@ export default function Games({ games }: GamesProps) {
     return () => cancelAnimationFrame(animationId)
   }, [isHovered, games.length])
 
-  // Mouse interaction
   useEffect(() => {
     if (!isHovered || !containerRef.current || games.length === 0) return
 
@@ -225,11 +221,10 @@ export default function Games({ games }: GamesProps) {
         const { width } = containerRef.current.getBoundingClientRect()
         const center = width / 2
         const dist = mouseX - center
-        const speed = (dist / center) * 15 // Map dist to 15px max speed
-        
+        const speed = (dist / center) * 15
+
         containerRef.current.scrollLeft += speed
 
-        // Loop handling
         const firstBatchWidth = (containerRef.current.scrollWidth / 6)
         if (containerRef.current.scrollLeft >= firstBatchWidth * 5) {
           containerRef.current.scrollLeft = firstBatchWidth
@@ -273,44 +268,44 @@ export default function Games({ games }: GamesProps) {
       </div>
 
       {/* Infinite Horizontal Carousel */}
-      <div 
+      <div
         className="relative py-8 select-none"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         onMouseMove={handleMouseMove}
       >
-        <div 
+        <div
           ref={containerRef}
           className="flex gap-8 overflow-x-auto cursor-none no-scrollbar py-12 px-[10vw]"
         >
           {displayGames.map((game, index) => (
-            <div 
+            <div
               key={`${game.id}-${index}`}
               onClick={() => setSelectedGame(game)}
               className="flex-shrink-0 w-[450px] group/card cursor-pointer"
             >
               <div className="relative aspect-[16/10] rounded-[32px] overflow-hidden border-2 border-white/5 bg-surface transition-all duration-700 group-hover/card:border-brand-primary group-hover/card:scale-[1.02] shadow-2xl">
                 {game.coverImage ? (
-                  <Image 
-                    src={game.coverImage} 
-                    alt={game.title} 
-                    fill 
-                    className="object-cover transition-transform duration-1000 group-hover/card:scale-110" 
+                  <Image
+                    src={game.coverImage}
+                    alt={game.title}
+                    fill
+                    className="object-cover transition-transform duration-1000 group-hover/card:scale-110"
                     sizes="450px"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-white/10 italic">No Key Art</div>
                 )}
-                
+
                 {/* Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80" />
-                
+
                 {/* Content */}
                 <div className="absolute inset-0 p-8 flex flex-col justify-end">
                   <div className="translate-y-4 group-hover/card:translate-y-0 transition-transform duration-500">
                     <span className="text-[10px] font-black text-brand-primary uppercase tracking-[0.2em] mb-2 block">{game.genre}</span>
                     <h3 className="text-3xl font-black text-white uppercase tracking-tighter mb-4">{game.title}</h3>
-                    
+
                     <div className="flex items-center gap-3 opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 delay-100">
                       <div className="flex -space-x-1">
                         {game.appStoreUrl && <div className="w-6 h-6 rounded-full bg-white text-black flex items-center justify-center border-2 border-surface"><Smartphone size={12}/></div>}
@@ -347,9 +342,9 @@ export default function Games({ games }: GamesProps) {
       {/* Details Modal */}
       <AnimatePresence>
         {selectedGame && (
-          <GameModal 
-            game={selectedGame} 
-            onClose={() => setSelectedGame(null)} 
+          <GameModal
+            game={selectedGame}
+            onClose={() => setSelectedGame(null)}
           />
         )}
       </AnimatePresence>
