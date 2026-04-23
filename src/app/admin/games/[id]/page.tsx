@@ -4,8 +4,9 @@ import { EditGameForm } from './EditGameForm'
 
 export const dynamic = 'force-dynamic'
 
-export default async function EditGamePage({ params }: { params: { id: string } }) {
-  const game = await prisma.game.findUnique({ where: { id: params.id }, include: { images: true } })
+export default async function EditGamePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const game = await prisma.game.findUnique({ where: { id }, include: { images: true } })
   if (!game) notFound()
 
   return (

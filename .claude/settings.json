@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "apiKeyHelper": "bash -c 'echo fw_MLx6L5RrkM6w7pwnf7tQLz'",
+  "apiKeyHelper": "bash -c 'echo fw_PjWkgN2sretEiS8GsBD9jk'",
   "env": {
     "ANTHROPIC_BASE_URL": "https://api.fireworks.ai/inference",
     "ANTHROPIC_MODEL": "accounts/fireworks/models/kimi-k2p6",
