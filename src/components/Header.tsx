@@ -26,6 +26,7 @@ export default function Header({ logoText, navItems }: HeaderProps) {
 
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-8">
+          <Link href="/games" className="text-sm text-text-secondary hover:text-white transition-colors duration-200">Games</Link>
           {navItems.map((item) => (
             <a key={item.id} href={item.href.startsWith('#') ? `/${item.href}` : item.href} className="text-sm text-text-secondary hover:text-white transition-colors duration-200">
               {item.label}
@@ -46,6 +47,14 @@ export default function Header({ logoText, navItems }: HeaderProps) {
       {menuOpen && (
         <div className="md:hidden fixed inset-0 top-16 bg-bg-base/98 backdrop-blur-lg z-40">
           <nav className="flex flex-col items-center justify-center h-full gap-6">
+            <Link
+              href="/games"
+              onClick={() => setMenuOpen(false)}
+              className="text-2xl text-white/80 hover:text-white font-medium transition-all"
+              style={{ animationDelay: '0s' }}
+            >
+              Games
+            </Link>
             {navItems.map((item, i) => (
               <a
                 key={item.id}

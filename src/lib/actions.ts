@@ -1,7 +1,7 @@
 'use server'
 
 import { prisma } from '@/lib/prisma'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, unstable_noStore } from 'next/cache'
 
 export type ActionResult<T> =
   | { success: true; data: T }
@@ -144,7 +144,7 @@ export async function getServiceItems() {
   }
 }
 
-export async function createServiceItem(data: { icon: string; title: string; description: string; sortOrder?: number }) {
+export async function createServiceItem(data: { icon: string; title: string; description: string; sortOrder?: number; visible?: boolean }) {
   try {
     const result = await prisma.serviceItem.create({ data })
     revalidatePath('/')
@@ -283,6 +283,19 @@ export async function toggleGamePublish(id: string) {
   }
 }
 
+export async function toggleGameFeature(id: string) {
+  try {
+    const game = await prisma.game.findUnique({ where: { id } })
+    if (!game) return { success: false, error: 'Game not found' } as ActionResult<undefined>
+    const result = await prisma.game.update({ where: { id }, data: { featured: !game.featured } })
+    revalidatePath('/')
+    revalidatePath('/admin/games')
+    return { success: true, data: result } as ActionResult<typeof result>
+  } catch (error) {
+    return { success: false, error: handleError(error) }
+  }
+}
+
 // ─── Contact ─────────────────────────────────────────
 export async function getContactInfo() {
   try {
@@ -326,6 +339,7 @@ export async function getSubmissions() {
 export async function markSubmissionRead(id: string) {
   try {
     const result = await prisma.contactSubmission.update({ where: { id }, data: { read: true } })
+    revalidatePath('/admin/submissions')
     return { success: true, data: result } as ActionResult<typeof result>
   } catch (error) {
     return { success: false, error: handleError(error) }
@@ -335,6 +349,7 @@ export async function markSubmissionRead(id: string) {
 export async function deleteSubmission(id: string) {
   try {
     await prisma.contactSubmission.delete({ where: { id } })
+    revalidatePath('/admin/submissions')
     return { success: true, data: undefined } as ActionResult<undefined>
   } catch (error) {
     return { success: false, error: handleError(error) }
@@ -409,6 +424,7 @@ export async function updateFooterSettings(data: { description?: string; copyrig
 
 // ─── Legal ───────────────────────────────────────────
 export async function getPrivacyPolicy() {
+  unstable_noStore()
   try {
     return await prisma.privacyPolicy.findUnique({ where: { id: 'main' } })
   } catch {
@@ -427,6 +443,7 @@ export async function updatePrivacyPolicy(data: { content: string }) {
 }
 
 export async function getTermsOfService() {
+  unstable_noStore()
   try {
     return await prisma.termsOfService.findUnique({ where: { id: 'main' } })
   } catch {

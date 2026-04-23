@@ -20,7 +20,7 @@ export default async function AdminDashboard() {
   ]
 
   const quickLinks = [
-    { label: 'Add New Game', href: '/admin/games/new' },
+    { label: 'Manage Games', href: '/admin/games' },
     { label: 'Edit Hero Section', href: '/admin/hero' },
     { label: 'Site Settings & SEO', href: '/admin/settings' },
     { label: 'Edit About Page', href: '/admin/about' },

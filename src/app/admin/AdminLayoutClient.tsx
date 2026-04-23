@@ -89,7 +89,13 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
     )
   }
 
-  if (!session) return null
+  if (!session) {
+    return (
+      <div className="min-h-screen bg-[#0f0f0f] flex items-center justify-center">
+        <div className="text-white/50 text-sm">Checking session...</div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-[#0f0f0f] flex">

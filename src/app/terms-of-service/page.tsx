@@ -1,8 +1,13 @@
 import { getTermsOfService, getSiteSettings, getNavigationItems } from '@/lib/actions'
 import Header from '@/components/Header'
 import parse from 'html-react-parser'
+import { unstable_noStore } from 'next/cache'
+
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 export default async function TermsOfServicePage() {
+  unstable_noStore()
   const terms = await getTermsOfService()
   const settings = await getSiteSettings()
   const nav = await getNavigationItems()

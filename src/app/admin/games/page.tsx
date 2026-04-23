@@ -48,7 +48,7 @@ export default async function GamesListPage() {
                 {game.published ? 'Published' : 'Draft'}
               </span>
               {game.featured && <span className="text-[11px] px-2.5 py-1 rounded-full bg-yellow-500/10 text-yellow-400 font-medium">Featured</span>}
-              <GameActions gameId={game.id} published={game.published} />
+              <GameActions gameId={game.id} published={game.published} featured={game.featured} />
               <Link href={`/admin/games/${game.id}`} className="text-xs text-white/40 hover:text-white transition-colors">Edit</Link>
             </div>
           </div>

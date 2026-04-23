@@ -28,26 +28,18 @@ export default function LegalAdminPage() {
   const handleSavePrivacy = async (e: React.FormEvent) => {
     e.preventDefault()
     setSavingPrivacy(true)
-    try {
-      await updatePrivacyPolicy({ content: privacyContent })
-      setToast({ message: 'Privacy policy updated', type: 'success' })
-    } catch (err) {
-      setToast({ message: 'Failed to update privacy policy', type: 'error' })
-    }
+    const result = await updatePrivacyPolicy({ content: privacyContent })
     setSavingPrivacy(false)
+    setToast({ message: result.success ? 'Privacy policy updated' : `Error: ${result.error}`, type: result.success ? 'success' : 'error' })
     setTimeout(() => setToast(null), 3000)
   }
 
   const handleSaveTerms = async (e: React.FormEvent) => {
     e.preventDefault()
     setSavingTerms(true)
-    try {
-      await updateTermsOfService({ content: termsContent })
-      setToast({ message: 'Terms of service updated', type: 'success' })
-    } catch (err) {
-      setToast({ message: 'Failed to update terms of service', type: 'error' })
-    }
+    const result = await updateTermsOfService({ content: termsContent })
     setSavingTerms(false)
+    setToast({ message: result.success ? 'Terms of service updated' : `Error: ${result.error}`, type: result.success ? 'success' : 'error' })
     setTimeout(() => setToast(null), 3000)
   }
 

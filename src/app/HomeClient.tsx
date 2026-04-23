@@ -64,7 +64,7 @@ export function HomeClient({
         {hero?.visible !== false && <Hero data={hero} />}
         {games.length > 0 && <Games games={games} />}
         {about?.visible !== false && <About data={about} />}
-        {services.length > 0 && <Services services={services} />}
+        {services.filter(s => s.visible !== false).length > 0 && <Services services={services.filter(s => s.visible !== false)} />}
         {contactInfo?.visible !== false && <Contact contactInfo={contactInfo} />}
         <Footer footer={footer} socialLinks={socialLinks} navItems={navItems} />
       </div>

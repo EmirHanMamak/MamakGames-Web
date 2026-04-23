@@ -25,9 +25,9 @@ export default function HeroPage() {
   const save = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    await updateHeroSection(data)
-    setToast('Hero section saved!')
+    const result = await updateHeroSection(data)
     setLoading(false)
+    setToast(result.success ? 'Hero section saved!' : `Error: ${result.error}`)
     setTimeout(() => setToast(''), 3000)
   }
 

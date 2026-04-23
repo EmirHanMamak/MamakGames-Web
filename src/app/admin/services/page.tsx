@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { AdminCard, FormField, TextInput, TextArea, SaveButton, DeleteButton, Toast } from '@/components/admin/AdminUI'
+import { AdminCard, FormField, TextInput, TextArea, SaveButton, DeleteButton, Toggle, Toast } from '@/components/admin/AdminUI'
 import { getServiceItems, createServiceItem, updateServiceItem, deleteServiceItem } from '@/lib/actions'
 
 const ICON_OPTIONS = ['Gamepad2', 'Smartphone', 'Globe', 'Zap', 'Code', 'Palette', 'Wrench', 'Rocket', 'Target', 'Layout']
@@ -10,35 +10,43 @@ export default function ServicesPage() {
   const [items, setItems] = useState<any[]>([])
   const [toast, setToast] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
-  const [form, setForm] = useState({ icon: 'Gamepad2', title: '', description: '', sortOrder: 0 })
+  const [form, setForm] = useState({ icon: 'Gamepad2', title: '', description: '', sortOrder: 0, visible: true })
 
   const load = () => getServiceItems().then(setItems)
   useEffect(() => { load() }, [])
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
+    let result
     if (editingId) {
-      await updateServiceItem(editingId, form)
-      setToast('Service updated!')
+      result = await updateServiceItem(editingId, form)
     } else {
-      await createServiceItem(form)
-      setToast('Service added!')
+      result = await createServiceItem(form)
     }
-    setForm({ icon: 'Gamepad2', title: '', description: '', sortOrder: items.length })
+    setForm({ icon: 'Gamepad2', title: '', description: '', sortOrder: items.length, visible: true })
     setEditingId(null)
-    load()
+    if (result.success) {
+      setToast(editingId ? 'Service updated!' : 'Service added!')
+      load()
+    } else {
+      setToast(`Error: ${result.error}`)
+    }
     setTimeout(() => setToast(''), 3000)
   }
 
   const handleEdit = (item: any) => {
     setEditingId(item.id)
-    setForm({ icon: item.icon, title: item.title, description: item.description, sortOrder: item.sortOrder })
+    setForm({ icon: item.icon, title: item.title, description: item.description, sortOrder: item.sortOrder, visible: item.visible ?? true })
   }
 
   const handleDelete = async (id: string) => {
-    await deleteServiceItem(id)
-    setToast('Service deleted')
-    load()
+    const result = await deleteServiceItem(id)
+    if (result.success) {
+      setToast('Service deleted')
+      await load()
+    } else {
+      setToast(`Error: ${result.error}`)
+    }
     setTimeout(() => setToast(''), 3000)
   }
 
@@ -84,10 +92,11 @@ export default function ServicesPage() {
           <FormField label="Sort Order">
             <TextInput type="number" value={String(form.sortOrder)} onChange={v => setForm(p => ({ ...p, sortOrder: parseInt(v) || 0 }))} />
           </FormField>
+          <Toggle label="Visible on Landing Page" checked={form.visible} onChange={v => setForm(p => ({ ...p, visible: v }))} />
           <div className="flex gap-3">
             <SaveButton loading={false} label={editingId ? 'Update' : 'Add Service'} />
             {editingId && (
-              <button type="button" onClick={() => { setEditingId(null); setForm({ icon: 'Gamepad2', title: '', description: '', sortOrder: items.length }) }} className="px-4 py-2 text-sm text-white/40 hover:text-white">Cancel</button>
+              <button type="button" onClick={() => { setEditingId(null); setForm({ icon: 'Gamepad2', title: '', description: '', sortOrder: items.length, visible: true }) }} className="px-4 py-2 text-sm text-white/40 hover:text-white">Cancel</button>
             )}
           </div>
         </form>

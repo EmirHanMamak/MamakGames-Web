@@ -1,8 +1,13 @@
 import { getPrivacyPolicy, getSiteSettings, getNavigationItems } from '@/lib/actions'
 import Header from '@/components/Header'
 import parse from 'html-react-parser'
+import { unstable_noStore } from 'next/cache'
+
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 export default async function PrivacyPolicyPage() {
+  unstable_noStore()
   const policy = await getPrivacyPolicy()
   const settings = await getSiteSettings()
   const nav = await getNavigationItems()

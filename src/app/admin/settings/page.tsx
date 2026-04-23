@@ -20,18 +20,18 @@ export default function SettingsPage() {
   const saveSite = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    await updateSiteSettings(site)
-    setToast('Site settings saved!')
+    const result = await updateSiteSettings(site)
     setLoading(false)
+    setToast(result.success ? 'Site settings saved!' : `Error: ${result.error}`)
     setTimeout(() => setToast(''), 3000)
   }
 
   const saveSeo = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    await updateSeoSettings(seo)
-    setToast('SEO settings saved!')
+    const result = await updateSeoSettings(seo)
     setLoading(false)
+    setToast(result.success ? 'SEO settings saved!' : `Error: ${result.error}`)
     setTimeout(() => setToast(''), 3000)
   }
 

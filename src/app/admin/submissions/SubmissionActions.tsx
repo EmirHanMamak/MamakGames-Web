@@ -7,20 +7,30 @@ import { useState } from 'react'
 export function SubmissionActions({ id, read }: { id: string; read: boolean }) {
   const router = useRouter()
   const [confirming, setConfirming] = useState(false)
+  const [localRead, setLocalRead] = useState(read)
 
   const handleRead = async () => {
-    await markSubmissionRead(id)
-    router.refresh()
+    setLocalRead(true)
+    const result = await markSubmissionRead(id)
+    if (result.success) {
+      router.refresh()
+    } else {
+      setLocalRead(read)
+    }
   }
 
   const handleDelete = async () => {
-    await deleteSubmission(id)
-    router.refresh()
+    const result = await deleteSubmission(id)
+    if (result.success) {
+      router.refresh()
+    } else {
+      setConfirming(false)
+    }
   }
 
   return (
     <div className="flex items-center gap-2">
-      {!read && (
+      {!localRead && (
         <button onClick={handleRead} className="text-[11px] text-white/30 hover:text-white transition-colors">
           Mark Read
         </button>

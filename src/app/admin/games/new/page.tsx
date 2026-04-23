@@ -12,22 +12,33 @@ export default function NewGamePage() {
   const [form, setForm] = useState({
     title: '', slug: '', shortDescription: '', fullDescription: '', coverImage: '',
     genre: '', appStoreUrl: '', googlePlayUrl: '', webUrl: '', steamUrl: '',
-    featured: false, published: true, releaseDate: '', sortOrder: 0,
+    featured: true, published: true, releaseDate: '', sortOrder: 0,
   })
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
   const generateSlug = (title: string) => title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
 
+  const validate = () => {
+    const nextErrors: Record<string, string> = {}
+    if (!form.title.trim()) nextErrors.title = 'Title is required'
+    if (!form.slug.trim()) nextErrors.slug = 'Slug is required'
+    if (!form.shortDescription.trim()) nextErrors.shortDescription = 'Short description is required'
+    setErrors(nextErrors)
+    return Object.keys(nextErrors).length === 0
+  }
+
   const save = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!validate()) return
     setLoading(true)
-    try {
-      await createGame(form)
+    const result = await createGame(form)
+    setLoading(false)
+    if (result.success) {
       router.push('/admin/games')
-    } catch (err: any) {
-      setToast(err.message || 'Error creating game')
+    } else {
+      setToast(result.error || 'Error creating game')
       setTimeout(() => setToast(''), 3000)
     }
-    setLoading(false)
   }
 
   return (
@@ -36,13 +47,16 @@ export default function NewGamePage() {
       <AdminCard>
         <form onSubmit={save} className="space-y-4">
           <FormField label="Title">
-            <TextInput value={form.title} onChange={v => { setForm(p => ({ ...p, title: v, slug: p.slug || generateSlug(v) })) }} required />
+            <TextInput value={form.title} onChange={v => { setForm(p => ({ ...p, title: v, slug: p.slug || generateSlug(v) })); if (errors.title) setErrors(e => { const n = { ...e }; delete n.title; return n }) }} required />
+            {errors.title && <p className="text-xs text-red-400 mt-1">{errors.title}</p>}
           </FormField>
           <FormField label="Slug" hint="URL-friendly name, auto-generated from title">
-            <TextInput value={form.slug} onChange={v => setForm(p => ({ ...p, slug: v }))} required />
+            <TextInput value={form.slug} onChange={v => { setForm(p => ({ ...p, slug: v })); if (errors.slug) setErrors(e => { const n = { ...e }; delete n.slug; return n }) }} required />
+            {errors.slug && <p className="text-xs text-red-400 mt-1">{errors.slug}</p>}
           </FormField>
           <FormField label="Short Description">
-            <TextArea value={form.shortDescription} onChange={v => setForm(p => ({ ...p, shortDescription: v }))} rows={2} />
+            <TextArea value={form.shortDescription} onChange={v => { setForm(p => ({ ...p, shortDescription: v })); if (errors.shortDescription) setErrors(e => { const n = { ...e }; delete n.shortDescription; return n }) }} rows={2} />
+            {errors.shortDescription && <p className="text-xs text-red-400 mt-1">{errors.shortDescription}</p>}
           </FormField>
           <FormField label="Full Description">
             <TextArea value={form.fullDescription} onChange={v => setForm(p => ({ ...p, fullDescription: v }))} rows={5} />

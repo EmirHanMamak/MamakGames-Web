@@ -4,15 +4,30 @@ import { SubmissionActions } from './SubmissionActions'
 export const dynamic = 'force-dynamic'
 
 export default async function SubmissionsPage() {
-  const submissions = await prisma.contactSubmission.findMany({ orderBy: { createdAt: 'desc' } })
+  let submissions: any[] = []
+  let error = ''
+
+  try {
+    submissions = await prisma.contactSubmission.findMany({ orderBy: { createdAt: 'desc' } })
+  } catch {
+    error = 'Failed to load submissions. Database may be unavailable.'
+  }
 
   return (
     <div className="space-y-6 max-w-4xl">
       <h2 className="text-xl font-semibold text-white">Contact Submissions</h2>
 
-      {submissions.length === 0 ? (
+      {error && (
+        <div className="px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+          {error}
+        </div>
+      )}
+
+      {!error && submissions.length === 0 && (
         <div className="text-center py-12 text-white/30 text-sm">No submissions yet.</div>
-      ) : (
+      )}
+
+      {submissions.length > 0 && (
         <div className="space-y-3">
           {submissions.map(s => (
             <div key={s.id} className={`p-5 rounded-xl border transition-all ${s.read ? 'bg-[#111] border-white/[0.06]' : 'bg-[#111] border-[#b30000]/20'}`}>

@@ -36,12 +36,12 @@ export default function Contact({ contactInfo }: ContactProps) {
     e.preventDefault()
     if (timeoutRef.current) clearTimeout(timeoutRef.current)
     setStatus('loading')
-    try {
-      await createSubmission(form)
+    const result = await createSubmission(form)
+    if (result.success) {
       setStatus('success')
       setForm({ name: '', email: '', projectType: '', message: '' })
       timeoutRef.current = setTimeout(() => setStatus('idle'), 4000)
-    } catch {
+    } else {
       setStatus('error')
       timeoutRef.current = setTimeout(() => setStatus('idle'), 3000)
     }
@@ -119,6 +119,9 @@ export default function Contact({ contactInfo }: ContactProps) {
                   {status === 'loading' ? 'Sending...' : status === 'success' ? '✓ Message Sent!' : <><Send size={16} /> Send Message</>}
                 </button>
 
+                {status === 'success' && (
+                  <p className="text-sm text-green-400 text-center">Thank you! Your message has been sent successfully.</p>
+                )}
                 {status === 'error' && (
                   <p className="text-sm text-red-400 text-center">Something went wrong. Please try again.</p>
                 )}

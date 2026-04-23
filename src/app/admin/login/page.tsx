@@ -1,7 +1,7 @@
 'use client'
 
 import { signIn } from 'next-auth/react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 
 export default function LoginPage() {
@@ -10,6 +10,15 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+
+  useEffect(() => {
+    if (!loading) return
+    const timer = setTimeout(() => {
+      setError('Sign-in is taking too long. Please refresh and try again.')
+      setLoading(false)
+    }, 10000)
+    return () => clearTimeout(timer)
+  }, [loading])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

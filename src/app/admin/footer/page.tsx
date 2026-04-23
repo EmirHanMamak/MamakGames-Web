@@ -22,25 +22,33 @@ export default function FooterPage() {
   const saveFooter = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    await updateFooterSettings(footer)
-    setToast('Footer saved!')
+    const result = await updateFooterSettings(footer)
     setLoading(false)
+    setToast(result.success ? 'Footer saved!' : `Error: ${result.error}`)
     setTimeout(() => setToast(''), 3000)
   }
 
   const addSocial = async (e: React.FormEvent) => {
     e.preventDefault()
-    await createSocialLink(socialForm)
-    setSocialForm({ platform: '', url: '', icon: 'Globe', sortOrder: socials.length })
-    setToast('Social link added!')
-    loadData()
+    const result = await createSocialLink(socialForm)
+    if (result.success) {
+      setSocialForm({ platform: '', url: '', icon: 'Globe', sortOrder: socials.length })
+      setToast('Social link added!')
+      loadData()
+    } else {
+      setToast(`Error: ${result.error}`)
+    }
     setTimeout(() => setToast(''), 3000)
   }
 
   const removeSocial = async (id: string) => {
-    await deleteSocialLink(id)
-    setToast('Social link deleted')
-    loadData()
+    const result = await deleteSocialLink(id)
+    if (result.success) {
+      setToast('Social link deleted')
+      loadData()
+    } else {
+      setToast(`Error: ${result.error}`)
+    }
     setTimeout(() => setToast(''), 3000)
   }
 

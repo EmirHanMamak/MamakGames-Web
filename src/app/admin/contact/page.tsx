@@ -25,9 +25,9 @@ export default function ContactPage() {
   const save = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    await updateContactInfo(data)
-    setToast('Contact info saved!')
+    const result = await updateContactInfo(data)
     setLoading(false)
+    setToast(result.success ? 'Contact details updated' : `Error: ${result.error}`)
     setTimeout(() => setToast(''), 3000)
   }
 

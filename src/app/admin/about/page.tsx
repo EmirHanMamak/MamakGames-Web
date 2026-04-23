@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { AdminCard, FormField, TextInput, TextArea, SaveButton, ImageUpload, Toast } from '@/components/admin/AdminUI'
+import { AdminCard, FormField, TextInput, TextArea, SaveButton, ImageUpload, Toggle, Toast } from '@/components/admin/AdminUI'
 import { getAboutSection, updateAboutSection } from '@/lib/actions'
 
 export default function AboutPage() {
@@ -12,6 +12,7 @@ export default function AboutPage() {
     founderName: '', founderTitle: '', founderImage: '',
     stat1Label: '', stat1Value: '', stat2Label: '', stat2Value: '',
     stat3Label: '', stat3Value: '', stat4Label: '', stat4Value: '',
+    visible: true,
   })
 
   useEffect(() => {
@@ -22,6 +23,7 @@ export default function AboutPage() {
         founderName: a.founderName, founderTitle: a.founderTitle, founderImage: a.founderImage,
         stat1Label: a.stat1Label, stat1Value: a.stat1Value, stat2Label: a.stat2Label, stat2Value: a.stat2Value,
         stat3Label: a.stat3Label, stat3Value: a.stat3Value, stat4Label: a.stat4Label, stat4Value: a.stat4Value,
+        visible: a.visible ?? true,
       })
     })
   }, [])
@@ -29,9 +31,9 @@ export default function AboutPage() {
   const save = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    await updateAboutSection(data)
-    setToast('About section saved!')
+    const result = await updateAboutSection({ ...data, visible: data.visible })
     setLoading(false)
+    setToast(result.success ? 'About section saved!' : `Error: ${result.error}`)
     setTimeout(() => setToast(''), 3000)
   }
 
@@ -80,6 +82,7 @@ export default function AboutPage() {
             <FormField label="Stat 4 Label"><TextInput value={data.stat4Label} onChange={v => setData(p => ({ ...p, stat4Label: v }))} /></FormField>
             <FormField label="Stat 4 Value"><TextInput value={data.stat4Value} onChange={v => setData(p => ({ ...p, stat4Value: v }))} /></FormField>
           </div>
+          <Toggle label="Visible on Landing Page" checked={data.visible} onChange={v => setData(p => ({ ...p, visible: v }))} />
           <SaveButton loading={loading} />
         </form>
       </AdminCard>

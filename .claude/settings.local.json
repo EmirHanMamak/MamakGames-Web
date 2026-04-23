@@ -21,7 +21,21 @@
       "mcp__UnityMCP__set_active_instance",
       "mcp__UnityMCP__run_tests",
       "mcp__UnityMCP__get_test_job",
-      "Bash(npm view *)"
+      "Bash(npm view *)",
+      "mcp__TestSprite__testsprite_check_account_info",
+      "Bash(netstat -ano)",
+      "mcp__TestSprite__testsprite_generate_code_summary",
+      "mcp__TestSprite__testsprite_generate_standardized_prd",
+      "mcp__TestSprite__testsprite_generate_frontend_test_plan",
+      "mcp__TestSprite__testsprite_generate_code_and_execute",
+      "Bash(node *)",
+      "Bash(npx *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://127.0.0.1:3030/admin/login)",
+      "Bash(taskkill /F /PID 49448)",
+      "Bash(kill -9 49448)",
+      "Bash(python3 -c ' *)",
+      "Bash(python -c ' *)",
+      "mcp__TestSprite__testsprite_bootstrap"
     ]
   }
 }
